@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class MultiTagView extends LinearLayout {
 
     public interface TagChangeListener {
-        void onTagClick(Tag tag);
+        void onTagClick(String tag);
     }
 
     private final int DEFAULT_TAG_PADDING = 12;
@@ -29,7 +29,7 @@ public class MultiTagView extends LinearLayout {
     private LinearLayout mLayoutItem;
     private Context mContext;
     private int mTotalWidth;
-    private ArrayList<Tag> tags;
+    private ArrayList<String> tags;
 
     private boolean tagClickable;
     private boolean showAddButton;
@@ -79,18 +79,13 @@ public class MultiTagView extends LinearLayout {
         }
     }
 
-    private void insertTag(Tag tag) {
+    private void insertTag(String tag) {
         tags.add(tag);
     }
 
-    public void addSuggestionTag(Tag tag) {
-        tags.add(tag);
-        refresh();
-    }
-
-    private void addTag(final Tag tag) {
+    private void addTag(final String tag) {
         final Button button = new Button(mContext);
-        button.setText(tag.name);
+        button.setText(tag);
 
         button.setTextSize(14);
         button.setBackgroundResource(R.drawable.selector_tag_bg);
@@ -122,7 +117,8 @@ public class MultiTagView extends LinearLayout {
         mLayoutItem.addView(frameLayout, layoutParams);
     }
 
-    private void doTagClick(Tag tag) {
+    private void doTagClick(String tag) {
+        if (mTagChangeListener == null) return;
         mTagChangeListener.onTagClick(tag);
     }
 
@@ -132,18 +128,15 @@ public class MultiTagView extends LinearLayout {
         mLayoutItem.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         addView(mLayoutItem);
         tempWidth = 0;
-        for (Tag tag : tags) {
+        for (String tag : tags) {
             addTag(tag);
         }
         addEditText();
     }
 
-    public void updateTags(ArrayList<Tag> arrayList) {
+    public void updateTags(ArrayList<String> arrayList) {
         tags.clear();
-        for (Tag s : arrayList) {
-            Tag tag = s;
-            tags.add(tag);
-        }
+        tags.addAll(arrayList);
         refresh();
     }
 
@@ -167,12 +160,8 @@ public class MultiTagView extends LinearLayout {
         refresh();
     }
 
-    public ArrayList<Tag> getTags() {
-        ArrayList<Tag> arrayList = new ArrayList<>();
-        for (Tag tag : tags) {
-            arrayList.add(tag);
-        }
-        return arrayList;
+    public ArrayList<String> getTags() {
+        return tags;
     }
 
     private int getDeviceWidth() {
