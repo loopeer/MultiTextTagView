@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">library</string>
 
-    <string name="tag_add">Add Tag</string>
-
+    <string name="tag_add">添加</string>
 </resources>

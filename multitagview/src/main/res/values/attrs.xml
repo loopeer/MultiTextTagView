@@ -3,6 +3,8 @@
 
     <declare-styleable name="MultiTagView">
         <attr name="showEditButton" format="boolean"/>
+        <attr name="tagMargin" format="dimension"/>
+        <attr name="tagPadding" format="dimension"/>
     </declare-styleable>
 
 </resources>
