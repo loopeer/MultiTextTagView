@@ -9,9 +9,12 @@
         android:id="@+id/tag_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:tagMargin="@dimen/activity_horizontal_margin"
-        app:tagPadding="@dimen/activity_horizontal_margin"
+        android:layout_margin="12dp"
+        app:tagMargin="6dp"
+        app:tagPaddingHorizontal="6dp"
+        app:tagPaddingVertical="4dp"
         app:showEditButton="true"
+        app:tagTextSize="16sp"
         />
 
 </RelativeLayout>

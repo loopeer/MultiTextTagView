@@ -1,6 +1,7 @@
 package com.loopeer.android.librarys.multitagview;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
@@ -8,13 +9,13 @@ import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -34,22 +35,24 @@ public class MultiTagView extends LinearLayout {
     private final int DEFAULT_TAG_PADDING = 12;
     private final int DEFAULT_TAG_MARGIN = 12;
     private final int DEFAULT_TAG_PADDING_TOP = 3;
-    private final int DEFAULT_TAG_HEIGHT = 28;
 
     private int tempWidth = 0;
     private LinearLayout mLayoutItem;
     private Context mContext;
     private ArrayList<String> tags;
+    private boolean firstIn = true;
 
     private boolean tagClickable;
     private boolean showAddButton;
     private int tagMargin;
-    private int tagPadding;
+    private int tagPaddingHorizontal;
+    private int tagPaddingVertical;
     private ColorStateList textColorHint;
     private ColorStateList tagTextColor;
     private ColorStateList editTextColor;
     private int cursorDrawableId;
     private int tagBackgroundId;
+    private int tagEditBackgroundId;
     private float textSize;
 
     private TagChangeListener mTagChangeListener;
@@ -73,18 +76,21 @@ public class MultiTagView extends LinearLayout {
 
         showAddButton = a.getBoolean(R.styleable.MultiTagView_showEditButton, false);
         tagMargin = a.getDimensionPixelSize(R.styleable.MultiTagView_tagMargin, DEFAULT_TAG_MARGIN);
-        tagPadding = a.getDimensionPixelSize(R.styleable.MultiTagView_tagPadding, DEFAULT_TAG_PADDING);
+        tagPaddingHorizontal = a.getDimensionPixelSize(R.styleable.MultiTagView_tagPaddingHorizontal, DEFAULT_TAG_PADDING);
+        tagPaddingVertical = a.getDimensionPixelSize(R.styleable.MultiTagView_tagPaddingVertical, DEFAULT_TAG_PADDING_TOP);
         textColorHint = a.getColorStateList(R.styleable.MultiTagView_textColorHint);
         tagTextColor = a.getColorStateList(R.styleable.MultiTagView_tagTextColor);
         tagTextColor = a.getColorStateList(R.styleable.MultiTagView_tagTextColor);
         editTextColor = a.getColorStateList(R.styleable.MultiTagView_tagEditTextColor);
         cursorDrawableId = a.getResourceId(R.styleable.MultiTagView_cursorDrawable, R.drawable.cusor_edit);
         tagBackgroundId = a.getResourceId(R.styleable.MultiTagView_tagBackground, R.drawable.selector_tag_bg);
-        textSize = a.getDimensionPixelSize(R.styleable.MultiTagView_textSize, 0);
+        tagEditBackgroundId = a.getResourceId(R.styleable.MultiTagView_tagEditBackground, android.R.color.transparent);
+        textSize = a.getDimensionPixelSize(R.styleable.MultiTagView_tagTextSize, -1);
 
         tagTextColor = tagTextColor == null ? ContextCompat.getColorStateList(getContext(), R.color.selector_tag_text) : tagTextColor;
         editTextColor = editTextColor == null ? ContextCompat.getColorStateList(getContext(), R.color.tag_edit_text_color) : editTextColor;
         textColorHint = textColorHint == null ? ContextCompat.getColorStateList(getContext(), R.color.tag_text_color_hint) : textColorHint;
+
         setUpTreeObserver();
         init();
     }
@@ -151,8 +157,8 @@ public class MultiTagView extends LinearLayout {
         } catch (Exception ignored) {
         }
 
-        editText.setBackgroundResource(tagBackgroundId);
-        editText.setPadding(0, dip2px(DEFAULT_TAG_PADDING_TOP), 0, dip2px(DEFAULT_TAG_PADDING_TOP));
+        editText.setBackgroundResource(tagEditBackgroundId);
+        editText.setPadding(0, tagPaddingVertical, 0, tagPaddingVertical);
         editText.setHint(getResources().getString(R.string.tag_add));
         editText.setHintTextColor(textColorHint);
         editText.setTextColor(editTextColor);
@@ -170,11 +176,12 @@ public class MultiTagView extends LinearLayout {
                 return false;
             }
         });
-        if (textSize != 0) {
-            editText.setTextSize(textSize);
+        if (textSize != -1) {
+            editText.setTextSize(textSize / getResources().getDisplayMetrics().scaledDensity);
         }
         int textEditTextWidth = (int) editText.getPaint().measureText(getResources().getString(R.string.tag_add));
-        LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, dip2px(DEFAULT_TAG_HEIGHT));
+        int textHeight = getHeight(editText);
+        LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, textHeight);
         tempWidth += textEditTextWidth;
         if (tempWidth > getWidth()) {
             addNewLayoutItemWithTopMargin();
@@ -186,6 +193,11 @@ public class MultiTagView extends LinearLayout {
         mLayoutItem.addView(editText, layoutParams);
         editText.requestFocus();
         tempWidth -= tagMargin + textEditTextWidth;
+
+        if (!firstIn) {
+            return;
+        }
+        firstIn = false;
         editText.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -193,37 +205,50 @@ public class MultiTagView extends LinearLayout {
                 imm.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
             }
         }, 300);
-
     }
 
+    private void showInputMethod(final EditText editText) {
+        if (!firstIn) {
+            return;
+        }
+        firstIn = false;
+        editText.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                InputMethodManager imm = (InputMethodManager) editText.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
+            }
+        }, 300);
+    }
 
     private void insertTag(String s) {
         tags.add(s);
     }
 
     private void addTag(final String tag) {
-        final Button button = new Button(mContext);
-        button.setText(tag);
+        final TextView textView = new TextView(mContext);
+        textView.setText(tag);
 
-        if (textSize != 0) {
-            button.setTextSize(textSize);
+        if (textSize != -1) {
+            textView.setTextSize(textSize / getResources().getDisplayMetrics().scaledDensity);
         }
-        button.setBackgroundResource(tagBackgroundId);
-        button.setTextColor(tagTextColor);
-        button.setPadding(tagPadding, dip2px(DEFAULT_TAG_PADDING_TOP),
-                tagPadding, dip2px(DEFAULT_TAG_PADDING_TOP));
-        button.setEnabled(tagClickable);
-        button.setOnClickListener(new OnClickListener() {
+        textView.setBackgroundResource(tagBackgroundId);
+        textView.setTextColor(tagTextColor);
+        textView.setPadding(tagPaddingHorizontal, tagPaddingVertical,
+                tagPaddingHorizontal, tagPaddingVertical);
+        textView.setEnabled(tagClickable);
+        textView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 doTagClick(tag);
             }
         });
-        int btnWidth = (int) (2 * tagPadding + button.getPaint().measureText(button.getText().toString()));
-        LayoutParams layoutParams = new LayoutParams(btnWidth, dip2px(DEFAULT_TAG_HEIGHT));
+        int btnWidth = (int) (2 * tagPaddingHorizontal + textView.getPaint().measureText(textView.getText().toString()));
+        int textHeight = getHeight(textView);
+        LayoutParams layoutParams = new LayoutParams(btnWidth, textHeight);
         FrameLayout frameLayout = new FrameLayout(mContext);
         frameLayout.setLayoutParams(layoutParams);
-        frameLayout.addView(button);
+        frameLayout.addView(textView);
         tempWidth += btnWidth;
         if (tempWidth > getWidth()) {
             addNewLayoutItemWithTopMargin();
@@ -233,6 +258,16 @@ public class MultiTagView extends LinearLayout {
         }
         layoutParams.rightMargin = tagMargin;
         mLayoutItem.addView(frameLayout, layoutParams);
+    }
+
+    public int getHeight(TextView textView) {
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        ((Activity) textView.getContext()).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        int width = displaymetrics.widthPixels;
+        int widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST);
+        int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        textView.measure(widthMeasureSpec, heightMeasureSpec);
+        return textView.getMeasuredHeight();
     }
 
     private void doTagClick(String tag) {
@@ -264,11 +299,6 @@ public class MultiTagView extends LinearLayout {
         refresh();
     }
 
-    public void removeAllTagView() {
-        tags.clear();
-        refresh();
-    }
-
     public void removeTagAt(int i) {
         tags.remove(i);
         refresh();
@@ -286,10 +316,5 @@ public class MultiTagView extends LinearLayout {
 
     public ArrayList<String> getTags() {
         return tags;
-    }
-
-    private int dip2px(float dipValue) {
-        final float scale = mContext.getResources().getDisplayMetrics().density;
-        return (int) (dipValue * scale + 0.5f);
     }
 }

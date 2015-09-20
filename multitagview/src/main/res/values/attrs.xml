@@ -4,13 +4,15 @@
     <declare-styleable name="MultiTagView">
         <attr name="showEditButton" format="boolean"/>
         <attr name="tagMargin" format="dimension"/>
-        <attr name="tagPadding" format="dimension"/>
+        <attr name="tagPaddingHorizontal" format="dimension"/>
+        <attr name="tagPaddingVertical" format="dimension"/>
         <attr name="textColorHint" format="color"/>
         <attr name="tagTextColor" format="color"/>
         <attr name="tagEditTextColor" format="color"/>
         <attr name="tagBackground" format="reference|color"/>
+        <attr name="tagEditBackground" format="reference|color"/>
         <attr name="cursorDrawable" format="reference|color"/>
-        <attr name="textSize" format="dimension"/>
+        <attr name="tagTextSize" format="dimension"/>
     </declare-styleable>
 
 </resources>
