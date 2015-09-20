@@ -5,6 +5,7 @@
         <attr name="showEditButton" format="boolean"/>
         <attr name="tagMargin" format="dimension"/>
         <attr name="tagPaddingHorizontal" format="dimension"/>
+        <attr name="tagEditPaddingHorizontal" format="dimension"/>
         <attr name="tagPaddingVertical" format="dimension"/>
         <attr name="textColorHint" format="color"/>
         <attr name="tagTextColor" format="color"/>

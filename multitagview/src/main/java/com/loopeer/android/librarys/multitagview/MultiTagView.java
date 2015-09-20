@@ -34,6 +34,7 @@ public class MultiTagView extends LinearLayout {
     }
 
     private final int DEFAULT_TAG_PADDING = 12;
+    private final int DEFAULT_TAG_EDIT_PADDING = 0;
     private final int DEFAULT_TAG_MARGIN = 12;
     private final int DEFAULT_TAG_PADDING_TOP = 3;
 
@@ -47,6 +48,7 @@ public class MultiTagView extends LinearLayout {
     private boolean showAddButton;
     private int tagMargin;
     private int tagPaddingHorizontal;
+    private int tagEditPaddingHorizontal;
     private int tagPaddingVertical;
     private ColorStateList textColorHint;
     private ColorStateList tagTextColor;
@@ -78,6 +80,7 @@ public class MultiTagView extends LinearLayout {
         showAddButton = a.getBoolean(R.styleable.MultiTagView_showEditButton, false);
         tagMargin = a.getDimensionPixelSize(R.styleable.MultiTagView_tagMargin, DEFAULT_TAG_MARGIN);
         tagPaddingHorizontal = a.getDimensionPixelSize(R.styleable.MultiTagView_tagPaddingHorizontal, DEFAULT_TAG_PADDING);
+        tagEditPaddingHorizontal = a.getDimensionPixelSize(R.styleable.MultiTagView_tagEditPaddingHorizontal, DEFAULT_TAG_EDIT_PADDING);
         tagPaddingVertical = a.getDimensionPixelSize(R.styleable.MultiTagView_tagPaddingVertical, DEFAULT_TAG_PADDING_TOP);
         textColorHint = a.getColorStateList(R.styleable.MultiTagView_textColorHint);
         tagTextColor = a.getColorStateList(R.styleable.MultiTagView_tagTextColor);
@@ -161,7 +164,7 @@ public class MultiTagView extends LinearLayout {
         }
 
         editText.setBackgroundResource(tagEditBackgroundId);
-        editText.setPadding(0, tagPaddingVertical, 0, tagPaddingVertical);
+        editText.setPadding(tagEditPaddingHorizontal, tagPaddingVertical, tagEditPaddingHorizontal, tagPaddingVertical);
         editText.setHint(getResources().getString(R.string.tag_add));
         editText.setHintTextColor(textColorHint);
         editText.setTextColor(editTextColor);
@@ -182,7 +185,7 @@ public class MultiTagView extends LinearLayout {
         if (textSize != -1) {
             editText.setTextSize(textSize / getResources().getDisplayMetrics().scaledDensity);
         }
-        int textEditTextWidth = (int) editText.getPaint().measureText(getResources().getString(R.string.tag_add));
+        int textEditTextWidth = (int)(2 * tagEditPaddingHorizontal + editText.getPaint().measureText(getResources().getString(R.string.tag_add)));
         int textHeight = getHeight(editText);
         LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, textHeight);
         tempWidth += textEditTextWidth;
