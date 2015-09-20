@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="tag_text_color_hint">#CECECE</color>
+    <color name="tag_edit_text_color">#222222</color>
+
+</resources>
