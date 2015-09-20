@@ -1,8 +1,9 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
     <com.loopeer.android.librarys.multitagview.MultiTagView
@@ -17,4 +18,24 @@
         app:tagTextSize="16sp"
         />
 
-</RelativeLayout>
+    <Button
+        android:id="@android:id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:text="Get Data"
+        />
+
+    <com.loopeer.android.librarys.multitagview.MultiTagView
+        android:id="@+id/tag_view_show"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        app:tagMargin="6dp"
+        app:tagPaddingHorizontal="6dp"
+        app:tagPaddingVertical="4dp"
+        app:showEditButton="false"
+        app:tagTextSize="16sp"
+        />
+
+</LinearLayout>
