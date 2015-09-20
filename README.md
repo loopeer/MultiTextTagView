@@ -62,7 +62,7 @@ Get click data by the method
         Toast.makeText(this, tag, Toast.LENGTH_SHORT).show();
     }
 ```
-Get click data by the method 
+Get tags data by the method 
 ```java
         ArrayList<String> results = tagView.getTags();
 ```
